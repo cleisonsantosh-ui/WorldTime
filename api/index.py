@@ -15,19 +15,20 @@ try:
     load_dotenv()
 
     # Conecta ao Supabase usando httpx no lugar do supabase_py
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+    
     supabase_client = None
     if SUPABASE_URL and SUPABASE_KEY:
         supabase_client = httpx.AsyncClient(
-            base_url=SUPABASE_URL.rstrip("/"),
+            base_url=SUPABASE_URL,
             headers={
                 "apikey": SUPABASE_KEY,
                 "Authorization": f"Bearer {SUPABASE_KEY}",
                 "Content-Type": "application/json",
                 "Prefer": "return=representation"
-            }
+            },
+            timeout=10.0
         )
 
     # Configurações de Pastas e Templates
@@ -39,9 +40,11 @@ try:
         templates_dir = os.path.dirname(CURRENT_DIR)
         
     if not os.path.exists(os.path.join(templates_dir, "index.html")):
-        raise RuntimeError(f"Arquivo 'index.html' não encontrado em {templates_dir}")
-        
-    templates = Jinja2Templates(directory=templates_dir)
+        # Se não achar o arquivo, não explode agora para permitir que a rota /debug funcione
+        templates = None
+    else:
+        from fastapi.templating import Jinja2Templates
+        templates = Jinja2Templates(directory=templates_dir)
 
 except Exception as e:
     error_trace = traceback.format_exc()
@@ -73,6 +76,12 @@ async def show_location(request: Request, slug: str):
     if not supabase_client:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
         
+    if not templates:
+        raise HTTPException(status_code=500, detail="Configuração de templates falhou. Verifique se o index.html existe.")
+
+    location = None
+    suggestions = []
+    
     try:
         # 1. Busca os dados na tabela 'locations'
         resp_loc = await supabase_client.get(f"/rest/v1/locations?slug=eq.{slug}&select=*")
@@ -122,6 +131,12 @@ async def index(request: Request):
     if not supabase_client:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
 
+    if not templates:
+        raise HTTPException(status_code=500, detail="Configuração de templates falhou. Verifique se o index.html existe.")
+
+    location = None
+    suggestions = []
+    
     # Detecta o IP do usuário (aqui simulamos o fallback para são paulo)
     fallback_slug = "sao-paulo" 
     
