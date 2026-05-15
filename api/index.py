@@ -29,10 +29,10 @@ def log_error(e):
     import traceback
     traceback.print_exc()
 
-# Serve os arquivos estáticos (CSS, JS, Mídia) para que funcionem corretamente
-app.mount("/css", StaticFiles(directory=os.path.join(BASE_DIR, "css")), name="css")
-app.mount("/js", StaticFiles(directory=os.path.join(BASE_DIR, "js")), name="js")
-app.mount("/midia_desgner", StaticFiles(directory=os.path.join(BASE_DIR, "midia_desgner")), name="midia_desgner")
+# StaticFiles removido: Na Vercel, o CSS, JS e Midia são servidos automaticamente
+# pela própria Vercel (Edge Network) apenas existindo na raiz do projeto.
+# Tentar montar essas pastas aqui dentro causa "FUNCTION_INVOCATION_FAILED"
+# caso a Vercel não copie a pasta de mídia pesada para dentro da função lambda.
 
 def get_language(request: Request):
     lang_header = request.headers.get("accept-language", "en")
