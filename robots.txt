@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://worldtimeclock.com/sitemap.xml
+
+# Prevent indexing of template files
+Disallow: /city/_template.html
+Disallow: /api/

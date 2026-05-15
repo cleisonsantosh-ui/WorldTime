@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Clock — Current Time in 500+ Cities Worldwide | WorldTime.live</title>
+  <meta name="description" content="Browse current local time and live weather for 500+ cities around the world. Find any city's time zone, UTC offset, and weather instantly.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://worldtimeclock.com/cities.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="World Clock — 500+ Cities">
+  <meta property="og:description" content="Current time and weather for every major city in the world.">
+  <meta property="og:url" content="https://worldtimeclock.com/cities.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "World Clock — All Cities",
+    "url": "https://worldtimeclock.com/cities.html",
+    "description": "Current local time for 500+ cities worldwide"
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page-hero { padding: 60px 0 40px; text-align: center; }
+    .page-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; margin-bottom: 10px; }
+    .page-hero p { color: var(--text-secondary); max-width: 520px; margin: 0 auto 28px; }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .filter-btn {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: rgba(79,195,247,0.12);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+    .cities-by-region { margin-bottom: 48px; }
+    .region-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.8rem;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cities-list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .city-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: var(--transition);
+      color: var(--text-secondary);
+    }
+    .city-list-item:hover {
+      background: rgba(79,195,247,0.08);
+      border-color: rgba(79,195,247,0.25);
+      color: var(--accent-blue);
+      transform: translateX(2px);
+    }
+    .city-list-flag { font-size: 1.2rem; flex-shrink: 0; }
+    .city-list-info { min-width: 0; }
+    .city-list-name { font-weight: 600; color: var(--text-primary); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .city-list-time { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-blue); }
+    .breadcrumb { padding: 16px 0; font-size: 0.85rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--accent-blue); }
+    .breadcrumb span { margin: 0 6px; }
+    .search-wrapper { max-width: 480px; margin: 0 auto 32px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo">
+        <span class="logo-icon">🌍</span>
+        <span class="logo-text">WorldTime<span class="logo-accent">.live</span></span>
+      </a>
+      <nav class="nav">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/cities.html" class="nav-link active">All Cities</a>
+        <a href="/timezones.html" class="nav-link">Time Zones</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="/">Home</a> <span>›</span> All Cities
+    </nav>
+  </div>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Current Time in <span class="gradient-text">Every City</span></h1>
+      <p>Browse all cities with live local time, timezone and weather. Updated every second.</p>
+      <div class="search-wrapper" role="search">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="cities-filter" class="search-input" placeholder="Filter cities..." autocomplete="off">
+        </div>
+      </div>
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" data-region="all">🌍 All</button>
+        <button class="filter-btn" data-region="americas">🌎 Americas</button>
+        <button class="filter-btn" data-region="europe">🌍 Europe</button>
+        <button class="filter-btn" data-region="asia">🌏 Asia</button>
+        <button class="filter-btn" data-region="middle-east">🕌 Middle East</button>
+        <button class="filter-btn" data-region="africa">🌍 Africa</button>
+        <button class="filter-btn" data-region="oceania">🦘 Oceania</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container" id="cities-container">
+    <!-- Populated by JS -->
+  </div>
+
+  <footer class="footer" style="margin-top:40px">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 <a href="/">WorldTime.live</a> — Real-time world clock & weather for every city on Earth.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="js/cities-data.js"></script>
+  <script defer>
+    const REGIONS = {
+      americas:    ["US","CA","MX","BR","AR","CO","PE","CL"],
+      europe:      ["GB","FR","DE","ES","IT","NL","BE","AT","CH","SE","NO","DK","FI","PL","CZ","HU","GR","PT","RU","TR"],
+      asia:        ["JP","KR","CN","HK","SG","TW","TH","ID","PH","MY","VN","IN","PK","BD","LK","NP"],
+      "middle-east":["AE","SA","QA","KW","IL","EG"],
+      africa:      ["NG","KE","ZA","MA"],
+      oceania:     ["AU","NZ"],
+    };
+
+    const REGION_NAMES = {
+      americas:"🌎 Americas", europe:"🌍 Europe", asia:"🌏 Asia",
+      "middle-east":"🕌 Middle East & Africa (North)", africa:"🌍 Sub-Saharan Africa", oceania:"🦘 Oceania"
+    };
+
+    let activeRegion = "all";
+    let filterText = "";
+
+    function getFilteredCities() {
+      return CITIES_DB.filter(c => {
+        const matchRegion = activeRegion === "all" || (REGIONS[activeRegion] || []).includes(c.cc);
+        const matchText   = !filterText || c.city.toLowerCase().includes(filterText) || c.country.toLowerCase().includes(filterText);
+        return matchRegion && matchText;
+      });
+    }
+
+    function buildCitiesByRegion(cities) {
+      if (activeRegion !== "all") {
+        return { [activeRegion]: cities };
+      }
+      const groups = {};
+      Object.keys(REGIONS).forEach(r => {
+        groups[r] = cities.filter(c => REGIONS[r].includes(c.cc));
+      });
+      return groups;
+    }
+
+    function render() {
+      const container = document.getElementById("cities-container");
+      const cities = getFilteredCities();
+      const groups = buildCitiesByRegion(cities);
+
+      container.innerHTML = "";
+
+      if (cities.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px 0">No cities found.</p>';
+        return;
+      }
+
+      const now = new Date();
+
+      Object.entries(groups).forEach(([region, list]) => {
+        if (!list.length) return;
+
+        const section = document.createElement("div");
+        section.className = "cities-by-region";
+
+        const title = document.createElement("div");
+        title.className = "region-title";
+        title.textContent = REGION_NAMES[region] || region;
+        section.appendChild(title);
+
+        const grid = document.createElement("div");
+        grid.className = "cities-list-grid";
+
+        list.forEach(c => {
+          const timeStr = new Intl.DateTimeFormat("en-US", {
+            timeZone: c.tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+          }).format(now);
+
+          const a = document.createElement("a");
+          a.className = "city-list-item";
+          a.href = `/city/${c.slug}.html`;
+          a.setAttribute("data-tz", c.tz);
+          a.innerHTML = `
+            <span class="city-list-flag">${c.flag}</span>
+            <div class="city-list-info">
+              <div class="city-list-name">${c.city}</div>
+              <div class="city-list-time" data-tz="${c.tz}">${timeStr}</div>
+            </div>
+          `;
+          grid.appendChild(a);
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+
+      // Atualiza relógios
+      setInterval(() => {
+        const n = new Date();
+        document.querySelectorAll("[data-tz]").forEach(el => {
+          if (!el.classList.contains("city-list-time")) return;
+          try {
+            el.textContent = new Intl.DateTimeFormat("en-US", {
+              timeZone: el.dataset.tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+            }).format(n);
+          } catch(_) {}
+        });
+      }, 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      render();
+
+      document.getElementById("filter-bar").addEventListener("click", e => {
+        const btn = e.target.closest(".filter-btn");
+        if (!btn) return;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeRegion = btn.dataset.region;
+        render();
+      });
+
+      document.getElementById("cities-filter").addEventListener("input", e => {
+        filterText = e.target.value.toLowerCase().trim();
+        render();
+      });
+    });
+  </script>
+</body>
+</html>

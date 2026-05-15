@@ -1,0 +1,19 @@
+# Environment Variables
+.env
+api/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel

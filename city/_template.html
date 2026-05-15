@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Current Time in City — WorldTime.live</title>
+  <meta name="description" id="page-desc" content="What time is it in City right now? Current local time, date, timezone and live weather conditions.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" id="page-canonical" href="https://worldtimeclock.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" id="og-title" content="Current Time in City">
+  <meta property="og:description" id="og-desc" content="Real-time local time and weather in City.">
+  <meta property="og:url" id="og-url" content="https://worldtimeclock.com/">
+
+  <!-- Preconnects -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.open-meteo.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+
+  <!-- Schema (populated by JS) -->
+  <script type="application/ld+json" id="schema-ld"></script>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .city-hero {
+      padding: 60px 0 40px;
+      text-align: center;
+    }
+    .city-hero-flag { font-size: 4rem; margin-bottom: 12px; }
+    .city-hero h1 {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+    .city-hero .subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    .city-main-card {
+      max-width: 800px;
+      margin: 0 auto 48px;
+      background: var(--grad-card);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card), var(--shadow-glow);
+    }
+    .city-main-card .city-card-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 600px) {
+      .city-main-card .city-card-body { grid-template-columns: 1fr; }
+    }
+    .nearby-section { padding: 0 0 60px; }
+    .nearby-section h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 20px; }
+    .info-section { padding: 0 0 60px; }
+    .info-section h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .info-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .info-card .ic-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
+    .info-card .ic-value { font-size: 1.2rem; font-weight: 700; font-family: var(--font-mono); }
+    .info-card .ic-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    .breadcrumb {
+      padding: 16px 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--accent-blue); }
+    .breadcrumb span { margin: 0 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo" aria-label="WorldTime.live Home">
+        <span class="logo-icon">🌍</span>
+        <span class="logo-text">WorldTime<span class="logo-accent">.live</span></span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/cities.html" class="nav-link">All Cities</a>
+        <a href="/timezones.html" class="nav-link">Time Zones</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BREADCRUMB -->
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <a href="/cities.html">Cities</a>
+      <span>›</span>
+      <span id="breadcrumb-city">—</span>
+    </nav>
+  </div>
+
+  <!-- CITY HERO -->
+  <section class="city-hero" aria-labelledby="city-h1">
+    <div class="container">
+      <div class="city-hero-flag" id="city-flag" aria-hidden="true">🌍</div>
+      <h1 id="city-h1">Current Time in <span id="city-h1-name">—</span></h1>
+      <p class="subtitle" id="city-subtitle">—</p>
+    </div>
+  </section>
+
+  <!-- MAIN CLOCK + WEATHER CARD -->
+  <div class="container">
+    <div class="city-main-card">
+      <div class="city-card-body">
+        <!-- Time -->
+        <div class="time-block">
+          <div class="live-dot" aria-hidden="true"></div>
+          <div class="time-display" id="time-display">--:--:--</div>
+          <div class="date-display" id="date-display">—</div>
+          <div class="timezone-display" id="tz-display">—</div>
+        </div>
+        <!-- Weather -->
+        <div class="weather-block" id="weather-block">
+          <div class="weather-loading" id="weather-loading">
+            <div class="spinner"></div>
+            <span>Loading weather...</span>
+          </div>
+          <div class="weather-data" id="weather-data" hidden>
+            <div class="weather-main">
+              <span class="weather-icon" id="weather-icon">—</span>
+              <div class="weather-temp-group">
+                <span class="weather-temp" id="weather-temp">—</span>
+                <button class="temp-toggle" id="temp-toggle">°C / °F</button>
+              </div>
+              <span class="weather-desc" id="weather-desc">—</span>
+            </div>
+            <div class="weather-details">
+              <div class="weather-detail">
+                <span class="wd-icon">💧</span>
+                <span class="wd-label">Humidity</span>
+                <span class="wd-value" id="weather-humidity">—</span>
+              </div>
+              <div class="weather-detail">
+                <span class="wd-icon">💨</span>
+                <span class="wd-label">Wind</span>
+                <span class="wd-value" id="weather-wind">—</span>
+              </div>
+              <div class="weather-detail">
+                <span class="wd-icon">🌡️</span>
+                <span class="wd-label">Feels like</span>
+                <span class="wd-value" id="weather-feels">—</span>
+              </div>
+            </div>
+          </div>
+          <div class="weather-error" id="weather-error" hidden>⚠️ Weather unavailable</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO GRID -->
+    <div class="info-section" aria-labelledby="info-title">
+      <h2 id="info-title">Timezone Information</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="ic-label">UTC Offset</div>
+          <div class="ic-value" id="info-utc">—</div>
+          <div class="ic-sub">Current offset</div>
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Timezone</div>
+          <div class="ic-value" id="info-tz" style="font-size:0.95rem">—</div>
+          <div class="ic-sub">IANA identifier</div>
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Country</div>
+          <div class="ic-value" id="info-country" style="font-size:1rem">—</div>
+          <div class="ic-sub">Location</div>
+        </div>
+        <div class="info-card">
+          <div class="ic-label">Coordinates</div>
+          <div class="ic-value" id="info-coords" style="font-size:0.85rem">—</div>
+          <div class="ic-sub">Lat / Lon</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEARBY CITIES -->
+    <div class="nearby-section" aria-labelledby="nearby-title">
+      <h2 id="nearby-title">Other Cities in the Same Timezone</h2>
+      <div class="clocks-grid" id="nearby-grid"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 <a href="/">WorldTime.live</a> — Real-time world clock & weather</p>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="../js/cities-data.js"></script>
+  <script defer src="../js/weather.js"></script>
+  <script defer>
+    // =========================================
+    // CITY PAGE — Dynamic loader via URL slug
+    // =========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Extrai slug da URL: /city/new-york.html → new-york
+      const slug = location.pathname.split('/').pop().replace('.html', '');
+      const city = getCityBySlug(slug);
+
+      if (!city) {
+        document.title = 'City Not Found — WorldTime.live';
+        document.getElementById('city-h1').textContent = 'City not found';
+        return;
+      }
+
+      // Metadados SEO
+      const seoTitle = `Current Time in ${city.city}, ${city.country} — WorldTime.live`;
+      document.title = seoTitle;
+      document.getElementById('page-title').textContent = seoTitle;
+      document.getElementById('page-desc').content = 
+        `What time is it in ${city.city}, ${city.country} right now? Live local time, date, UTC offset and current weather conditions.`;
+      document.getElementById('page-canonical').href = `https://worldtimeclock.com/city/${city.slug}.html`;
+      document.getElementById('og-title').content  = `Current Time in ${city.city}`;
+      document.getElementById('og-desc').content   = `Real-time local time and weather in ${city.city}, ${city.country}.`;
+      document.getElementById('og-url').content    = `https://worldtimeclock.com/city/${city.slug}.html`;
+
+      // Schema.org
+      const utcOff = getUTCOffset(city.tz);
+      document.getElementById('schema-ld').textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": seoTitle,
+        "description": `Current local time and weather in ${city.city}.`,
+        "url": `https://worldtimeclock.com/city/${city.slug}.html`,
+        "about": {
+          "@type": "City",
+          "name": city.city,
+          "containedInPlace": { "@type": "Country", "name": city.country }
+        }
+      });
+
+      // UI
+      document.getElementById('breadcrumb-city').textContent = city.city;
+      document.getElementById('city-flag').textContent       = city.flag;
+      document.getElementById('city-h1-name').textContent    = `${city.city}, ${city.country}`;
+      document.getElementById('city-subtitle').textContent   = `${city.tz} · ${utcOff} · Live clock updated every second`;
+
+      // Info grid
+      document.getElementById('info-utc').textContent     = utcOff;
+      document.getElementById('info-tz').textContent      = city.tz;
+      document.getElementById('info-country').textContent = `${city.flag} ${city.country}`;
+      document.getElementById('info-coords').textContent  = `${city.lat.toFixed(4)}, ${city.lon.toFixed(4)}`;
+
+      // Relógio em tempo real
+      function tick() {
+        const now = new Date();
+        document.getElementById('time-display').textContent = new Intl.DateTimeFormat('en-US', {
+          timeZone: city.tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        }).format(now);
+        document.getElementById('date-display').textContent = new Intl.DateTimeFormat('en-US', {
+          timeZone: city.tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        }).format(now);
+        document.getElementById('tz-display').textContent = `${city.tz} · ${utcOff}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      // Clima
+      displayWeather(city.lat, city.lon);
+
+      // Cidades próximas (mesmo timezone)
+      const nearby = CITIES_DB
+        .filter(c => c.tz === city.tz && c.slug !== city.slug)
+        .slice(0, 8);
+
+      const grid = document.getElementById('nearby-grid');
+      nearby.forEach(c => {
+        const card = document.createElement('a');
+        card.className = 'clock-card';
+        card.href = `/city/${c.slug}.html`;
+        card.style.textDecoration = 'none';
+        card.innerHTML = `
+          <div class="clock-flag">${c.flag}</div>
+          <div class="clock-city">${c.city}</div>
+          <div class="clock-country">${c.country}</div>
+          <div class="clock-time" data-clock-time="${c.tz}">--:--:--</div>
+          <div class="clock-date" data-clock-date="${c.tz}"></div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Atualiza relógios nearby
+      function updateNearby() {
+        const now = new Date();
+        grid.querySelectorAll('[data-clock-time]').forEach(el => {
+          el.textContent = new Intl.DateTimeFormat('en-US', {
+            timeZone: el.dataset.clockTime, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+          }).format(now);
+        });
+        grid.querySelectorAll('[data-clock-date]').forEach(el => {
+          el.textContent = new Intl.DateTimeFormat('en-US', {
+            timeZone: el.dataset.clockDate, weekday: 'short', month: 'short', day: 'numeric'
+          }).format(now);
+        });
+      }
+      updateNearby();
+      setInterval(updateNearby, 1000);
+    });
+
+    // Utility necessária nesta página
+    function getUTCOffset(tz) {
+      const now = new Date();
+      const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+      const tzDate  = new Date(now.toLocaleString('en-US', { timeZone: tz }));
+      const diff    = (tzDate - utcDate) / 3600000;
+      const sign    = diff >= 0 ? '+' : '-';
+      const abs     = Math.abs(diff);
+      const h       = Math.floor(abs);
+      const m       = Math.round((abs - h) * 60);
+      return `UTC${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="{{ lang | default('en') }}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ seo_title | default('World Time & Weather — Current Time in Any City Right Now') }}</title>
+  <meta name="description"
+    content="{{ seo_description | default('Check the current local time and live weather in any city worldwide. Accurate, real-time world clock and weather for over 500 cities. Free, fast, no ads.') }}">
+  <meta name="keywords"
+    content="world clock, current time, local time, weather now, time zone, what time is it in, world time, live clock">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://worldtimeclock.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="World Time & Weather — Current Time in Any City Right Now">
+  <meta property="og:description"
+    content="Instant local time and live weather for any city in the world. No signup required.">
+  <meta property="og:url" content="https://worldtimeclock.com/">
+  <meta property="og:image" content="https://worldtimeclock.com/og-image.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="World Time & Weather">
+  <meta name="twitter:description" content="Real-time local time and weather for any city worldwide.">
+
+  <!-- Preconnects -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.open-meteo.com">
+  <link rel="preload" href="midia_desgner/Digital%20planet%20Earth%20IV.mp4" as="video" type="video/mp4">
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+
+  <!-- Schema Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "World Time & Weather",
+    "url": "https://worldtimeclock.com",
+    "description": "Real-time local time and weather for any city worldwide",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://worldtimeclock.com/"
+    }]
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- BACKGROUND VIDEO -->
+  <video class="bg-video" autoplay loop muted playsinline preload="auto">
+    <source src="midia_desgner/Digital%20planet%20Earth%20IV.mp4" type="video/mp4">
+  </video>
+  <div class="bg-overlay"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo" aria-label="World Time & Weather Home">
+        <span class="logo-icon" fetchpriority="high">🌍</span>
+        <span class="logo-text">WorldTime<span class="logo-accent">.live</span></span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/" class="nav-link active">Home</a>
+        <a href="/cities.html" class="nav-link">All Cities</a>
+        <a href="/timezones.html" class="nav-link">Time Zones</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container">
+      <div class="hero-badge" data-i18n="hero_badge">🕐 Live • Updated every second</div>
+      <h1 id="hero-title" class="hero-title" data-i18n="hero_title">
+        What time is it<br><span class="gradient-text">anywhere in the world?</span>
+      </h1>
+      <p class="hero-subtitle" data-i18n="hero_subtitle">
+        Instant local time + live weather for <strong>500+ cities</strong>. No ads, no signup.
+      </p>
+
+      <!-- Search -->
+      <div class="search-wrapper" role="search">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="text" id="city-search" class="search-input"
+            placeholder="Search any city... (e.g. Tokyo, London, New York)" autocomplete="off"
+            aria-label="Search for a city" aria-autocomplete="list" data-i18n="search_placeholder">
+          <button class="search-btn" id="search-btn" aria-label="Search">
+            <span data-i18n="search_btn">Search</span>
+          </button>
+        </div>
+        <ul class="search-dropdown" id="search-results" role="listbox" aria-label="City suggestions" hidden></ul>
+      </div>
+
+      <!-- Quick picks -->
+      <div class="quick-cities" aria-label="Popular cities">
+        <span class="quick-label" data-i18n="popular_label">Popular:</span>
+        <div class="quick-tags" id="quick-tags">
+          <button class="quick-tag" data-city="New York" data-lat="40.7128" data-lon="-74.0060"
+            data-tz="America/New_York">🇺🇸 New York</button>
+          <button class="quick-tag" data-city="London" data-lat="51.5074" data-lon="-0.1278"
+            data-tz="Europe/London">🇬🇧 London</button>
+          <button class="quick-tag" data-city="Tokyo" data-lat="35.6762" data-lon="139.6503" data-tz="Asia/Tokyo">🇯🇵
+            Tokyo</button>
+          <button class="quick-tag" data-city="Dubai" data-lat="25.2048" data-lon="55.2708" data-tz="Asia/Dubai">🇦🇪
+            Dubai</button>
+          <button class="quick-tag" data-city="Paris" data-lat="48.8566" data-lon="2.3522" data-tz="Europe/Paris">🇫🇷
+            Paris</button>
+          <button class="quick-tag" data-city="Sydney" data-lat="-33.8688" data-lon="151.2093"
+            data-tz="Australia/Sydney">🇦🇺 Sydney</button>
+          <button class="quick-tag" data-city="São Paulo" data-lat="-23.5505" data-lon="-46.6333"
+            data-tz="America/Sao_Paulo">🇧🇷 São Paulo</button>
+          <button class="quick-tag" data-city="Singapore" data-lat="1.3521" data-lon="103.8198"
+            data-tz="Asia/Singapore">🇸🇬 Singapore</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITY RESULT CARD -->
+  <section class="result-section" id="result-section" hidden aria-live="polite">
+    <div class="container">
+      <div class="city-card" id="city-card">
+        <div class="city-card-header">
+          <div class="city-info">
+            <h2 class="city-name" id="city-name">—</h2>
+            <p class="city-meta" id="city-meta">—</p>
+          </div>
+          <div class="city-actions">
+            <button class="btn-share" id="btn-share" aria-label="Share this city time">📤 Share</button>
+            <a class="btn-page" id="btn-page" href="#" aria-label="Open dedicated city page">🔗 Full page</a>
+          </div>
+        </div>
+
+        <div class="city-card-body">
+          <!-- Time -->
+          <div class="time-block">
+            <div class="live-dot" aria-hidden="true"></div>
+            <div class="time-display" id="time-display" aria-label="Current local time">—</div>
+            <div class="date-display" id="date-display">—</div>
+            <div class="timezone-display" id="tz-display">—</div>
+          </div>
+
+          <!-- Weather -->
+          <div class="weather-block" id="weather-block">
+            <div class="weather-loading" id="weather-loading">
+              <div class="spinner" aria-hidden="true"></div>
+              <span data-i18n="loading_weather">Loading weather...</span>
+            </div>
+            <div class="weather-data" id="weather-data" hidden>
+              <div class="weather-main">
+                <span class="weather-icon" id="weather-icon" aria-hidden="true">—</span>
+                <div class="weather-temp-group">
+                  <span class="weather-temp" id="weather-temp">—</span>
+                  <button class="temp-toggle" id="temp-toggle" aria-label="Toggle Celsius/Fahrenheit"
+                    data-i18n="temp_toggle">°C / °F</button>
+                </div>
+                <span class="weather-desc" id="weather-desc">—</span>
+              </div>
+              <div class="weather-details">
+                <div class="weather-detail">
+                  <span class="wd-icon">💧</span>
+                  <span class="wd-label" data-i18n="humidity">Humidity</span>
+                  <span class="wd-value" id="weather-humidity">—</span>
+                </div>
+                <div class="weather-detail">
+                  <span class="wd-icon">💨</span>
+                  <span class="wd-label" data-i18n="wind">Wind</span>
+                  <span class="wd-value" id="weather-wind">—</span>
+                </div>
+                <div class="weather-detail">
+                  <span class="wd-icon">👁️</span>
+                  <span class="wd-label" data-i18n="feels_like">Feels like</span>
+                  <span class="wd-value" id="weather-feels">—</span>
+                </div>
+              </div>
+            </div>
+            <div class="weather-error" id="weather-error" hidden>
+              <span data-i18n="weather_error">⚠️ Weather unavailable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORLD CLOCKS GRID -->
+  <section class="world-clocks" aria-labelledby="clocks-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="clocks-title" class="section-title">Live World Clocks</h2>
+        <p class="section-sub">All times update in real-time</p>
+      </div>
+      <div class="clocks-grid" id="clocks-grid" aria-label="World clocks by city">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- POPULAR SEARCHES (SEO Content) -->
+  <section class="seo-cities" aria-labelledby="popular-title">
+    <div class="container">
+      <h2 id="popular-title" class="section-title">Popular City Pages</h2>
+      <p class="section-sub">Click any city for detailed time, weather and timezone info</p>
+      <div class="cities-grid" id="cities-seo-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ (SEO) -->
+  <section class="faq-section" aria-labelledby="faq-title">
+    <div class="container">
+      <h2 id="faq-title" class="section-title">Frequently Asked Questions</h2>
+      <div class="faq-grid">
+        <details class="faq-item">
+          <summary class="faq-q">What time is it in New York right now?</summary>
+          <div class="faq-a">New York follows Eastern Time (ET). During standard time it's UTC-5, and during daylight
+            saving time it's UTC-4. Use our live clock above for the exact current time in New York City.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">What time is it in London now?</summary>
+          <div class="faq-a">London uses Greenwich Mean Time (GMT/UTC+0) in winter and British Summer Time (BST/UTC+1)
+            in summer. Our world clock shows the precise current time in London.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">How many time zones are there in the world?</summary>
+          <div class="faq-a">There are 24 standard time zones in the world, but including offsets like UTC+5:30 (India)
+            and UTC+5:45 (Nepal), there are actually 38 distinct time zones currently in use.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">What time is it in Tokyo right now?</summary>
+          <div class="faq-a">Tokyo, Japan uses Japan Standard Time (JST), which is UTC+9. Japan does not observe
+            daylight saving time, so Tokyo is always 9 hours ahead of UTC year-round.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">How do I convert time between time zones?</summary>
+          <div class="faq-a">Simply search for any city in our search bar above. We show the current local time
+            instantly. You can compare times between cities by opening multiple city pages.</div>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Is the weather data updated in real-time?</summary>
+          <div class="faq-a">Yes! We use the Open-Meteo weather API which provides hourly updated weather data including
+            temperature, humidity, wind speed and weather conditions for cities worldwide.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="logo-icon">🌍</span>
+          <strong>WorldTime.live</strong>
+          <p>Real-time world clock & weather for every city on Earth.</p>
+        </div>
+        <div class="footer-links">
+          <h3>Cities</h3>
+          <ul>
+            <li><a href="/city/new-york.html">New York Time</a></li>
+            <li><a href="/city/london.html">London Time</a></li>
+            <li><a href="/city/tokyo.html">Tokyo Time</a></li>
+            <li><a href="/city/dubai.html">Dubai Time</a></li>
+            <li><a href="/city/paris.html">Paris Time</a></li>
+            <li><a href="/city/sydney.html">Sydney Time</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h3>Tools</h3>
+          <ul>
+            <li><a href="/cities.html">All 500+ Cities</a></li>
+            <li><a href="/timezones.html">Time Zones</a></li>
+            <li><a href="/converter.html">Time Converter</a></li>
+            <li><a href="/privacidade.html">Privacy Policy</a></li>
+            <li><a href="/termos.html">Terms of Service</a></li>
+            <li><a href="mailto:contato@worldtimeclock.com">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SEO KEYWORD CLOUD -->
+      <div class="footer-seo" style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px; opacity: 0.6; font-size: 0.8rem; line-height: 2;">
+        <p><strong>Top Queries:</strong> 
+          hora certa agora, fuso horário mundial, que horas são em londres, hora brasília, converter fuso horário, tempo e clima hoje, previsão do tempo mundial, relógio online ao vivo, time in new york, current time tokyo, GMT offset, UTC time now, world clock live, clima tempo são paulo, hora exata porto, fuso horário estados unidos, diferença de horário, que horas são em dubai, clima em lisboa, weather forecast london, horários mundiais atualizados, cronômetro online, que horas são na china, horário de brasília agora ao vivo, fuso horário japão, que horas são na flórida, tempo em tempo real, meteorologia mundial, relógio digital online, hora mundial completa.
+        </p>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 WorldTime.live — Powered by <a href="https://open-meteo.com" rel="noopener"
+            target="_blank">Open-Meteo</a> & <a href="https://supabase.com" rel="noopener" target="_blank">Supabase</a>
+        </p>
+        <p class="footer-legal">Data updates every hour. Time zones powered by IANA tz database.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="js/cities-data.js"></script>
+  <script defer src="js/i18n.js"></script>
+  <script defer src="js/weather.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+
+</html>
