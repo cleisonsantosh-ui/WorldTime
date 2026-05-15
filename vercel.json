@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/**/*.py": {
+      "includeFiles": "index.html"
+    }
+  },
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
