@@ -74,7 +74,7 @@ CITIES = [
     {"city": "Auckland",       "country": "New Zealand",   "cc": "NZ", "flag": "🇳🇿", "lat": -36.8485, "lon": 174.7633,  "tz": "Pacific/Auckland",                  "slug": "auckland"},
 ]
 
-BASE_URL = "https://worldtimeclock.com"
+BASE_URL = "https://world-timelive.vercel.app"
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "city")
 
 def read_template():

@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://worldtimeclock.com/sitemap.xml
+Sitemap: https://world-timelive.vercel.app/sitemap.xml
 
 # Prevent indexing of template files
 Disallow: /city/_template.html
