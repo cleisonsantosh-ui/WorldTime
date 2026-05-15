@@ -46,7 +46,14 @@ try:
 except Exception as e:
     error_trace = traceback.format_exc()
 
-
+@app.get("/debug")
+async def debug():
+    return {
+        "status": "ready" if not error_trace else "error",
+        "error_trace": error_trace,
+        "supabase_client": "initialized" if supabase_client else "missing",
+        "templates_dir": templates_dir if 'templates_dir' in locals() else "not defined"
+    }
 # StaticFiles removido: Na Vercel, o CSS, JS e Midia são servidos automaticamente
 # pela própria Vercel (Edge Network) apenas existindo na raiz do projeto.
 # Tentar montar essas pastas aqui dentro causa "FUNCTION_INVOCATION_FAILED"
