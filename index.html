@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorldTime.live — Live World Clock & Weather</title>
+  <title>{{ seo_title | default('WorldTime.live — Live World Clock & Weather') }}</title>
   <meta name="description"
-    content="Check the current local time and live weather in any city worldwide. Accurate, real-time world clock and weather for over 500 cities.">
+    content="{{ seo_description | default('Check the current local time and live weather in any city worldwide.') }}">
   <meta name="keywords"
     content="world clock, current time, local time, weather now, time zone, what time is it in, world time, live clock">
   <meta name="robots" content="index, follow">
@@ -14,9 +14,9 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="World Time & Weather — Current Time in Any City Right Now">
+  <meta property="og:title" content="{{ seo_title }}">
   <meta property="og:description"
-    content="Instant local time and live weather for any city in the world. No signup required.">
+    content="{{ seo_description }}">
   <meta property="og:url" content="https://world-timelive.vercel.app/">
   <meta property="og:image" content="https://world-timelive.vercel.app/og-image.jpg">
 
@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://api.open-meteo.com">
-  <link rel="preload" href="midia_desgner/Digital%20planet%20Earth%20IV.mp4" as="video" type="video/mp4">
+  <link rel="preload" href="/midia_desgner/Digital%20planet%20Earth%20IV.mp4" as="video" type="video/mp4">
 
   <script type="text/javascript">
     (function (c, l, a, r, i, t, y) {
@@ -74,14 +74,14 @@
   }
   </script>
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
   <!-- BACKGROUND VIDEO -->
   <video class="bg-video" autoplay loop muted playsinline preload="auto">
-    <source src="midia_desgner/Digital%20planet%20Earth%20IV.mp4" type="video/mp4">
+    <source src="/midia_desgner/Digital%20planet%20Earth%20IV.mp4" type="video/mp4">
   </video>
   <div class="bg-overlay"></div>
 
@@ -335,10 +335,10 @@
     </div>
   </footer>
 
-  <script defer src="js/cities-data.js"></script>
-  <script defer src="js/i18n.js"></script>
-  <script defer src="js/weather.js"></script>
-  <script defer src="js/app.js"></script>
+  <script defer src="/js/cities-data.js"></script>
+  <script defer src="/js/i18n.js"></script>
+  <script defer src="/js/weather.js"></script>
+  <script defer src="/js/app.js"></script>
 </body>
 
 </html>

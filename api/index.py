@@ -31,12 +31,15 @@ try:
         )
 
     # Configurações de Pastas e Templates
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Garante que na Vercel o BASE_DIR existe ou levanta um erro claro
-    templates_dir = str(BASE_DIR)
-    if not os.path.exists(templates_dir):
-        raise RuntimeError(f"BASE_DIR '{templates_dir}' não existe no ambiente da Vercel!")
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    # Na Vercel, o index.html pode estar no root ou junto ao index.py
+    if os.path.exists(os.path.join(CURRENT_DIR, "index.html")):
+        templates_dir = CURRENT_DIR
+    else:
+        templates_dir = os.path.dirname(CURRENT_DIR)
+        
+    if not os.path.exists(os.path.join(templates_dir, "index.html")):
+        raise RuntimeError(f"Arquivo 'index.html' não encontrado em {templates_dir}")
         
     templates = Jinja2Templates(directory=templates_dir)
 
@@ -140,7 +143,7 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "location": location,
-        "suggestions": sugg_response.data,
+        "suggestions": suggestions,
         "seo_title": seo_title,
         "seo_description": seo_desc,
         "lang": lang
