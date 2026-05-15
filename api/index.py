@@ -69,6 +69,7 @@ def get_language(request: Request):
     return "en"
 
 @app.get("/horario/{slug}")
+@app.get("/api/horario/{slug}")
 async def show_location(request: Request, slug: str):
     if error_trace:
         return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
@@ -124,6 +125,7 @@ async def show_location(request: Request, slug: str):
     })
 
 @app.get("/")
+@app.get("/api/index")
 async def index(request: Request):
     if error_trace:
         return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
@@ -170,3 +172,12 @@ async def index(request: Request):
         "seo_description": seo_desc,
         "lang": lang
     })
+
+@app.api_route("/{path_name:path}", methods=["GET"])
+async def catch_all(request: Request, path_name: str):
+    return {
+        "message": "Rota nao encontrada no FastAPI",
+        "caminho_recebido": path_name,
+        "url_completa": str(request.url),
+        "status": "app_running"
+    }
