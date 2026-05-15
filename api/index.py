@@ -20,7 +20,22 @@ try:
 
     supabase = None
     if SUPABASE_URL and SUPABASE_KEY:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        import re
+        # O Supabase atualizou o formato das chaves para "sb_publishable_..."
+        # Porem, o cliente Python antigo possui um código hardcoded que bloqueia isso
+        # Aqui fazemos um 'monkey-patch' rápido para pular essa validação.
+        original_match = re.match
+        def custom_match(pattern, string, flags=0):
+            if "A-Za-z0-9" in str(pattern) and string.startswith("sb_"):
+                class MockMatch: pass
+                return MockMatch()
+            return original_match(pattern, string, flags)
+            
+        re.match = custom_match
+        try:
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        finally:
+            re.match = original_match
 
     # Configurações de Pastas e Templates
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
