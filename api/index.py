@@ -1,33 +1,40 @@
 import os
+import traceback
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from supabase import create_client, Client
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = FastAPI(title="Global Horas Backend")
 
-# Conecta ao Supabase
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+error_trace = None
 
-supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+try:
+    from fastapi.templating import Jinja2Templates
+    from supabase import create_client, Client
+    from dotenv import load_dotenv
 
-# Configurações de Pastas e Templates
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-templates = Jinja2Templates(directory=str(BASE_DIR))
+    load_dotenv()
 
-# Função para log de erros (ajuda no debug da Vercel)
-def log_error(e):
-    print(f"--- ERRO DETECTADO ---")
-    print(str(e))
-    import traceback
-    traceback.print_exc()
+    # Conecta ao Supabase
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+    supabase = None
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+    # Configurações de Pastas e Templates
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    # Garante que na Vercel o BASE_DIR existe ou levanta um erro claro
+    templates_dir = str(BASE_DIR)
+    if not os.path.exists(templates_dir):
+        raise RuntimeError(f"BASE_DIR '{templates_dir}' não existe no ambiente da Vercel!")
+        
+    templates = Jinja2Templates(directory=templates_dir)
+
+except Exception as e:
+    error_trace = traceback.format_exc()
+
 
 # StaticFiles removido: Na Vercel, o CSS, JS e Midia são servidos automaticamente
 # pela própria Vercel (Edge Network) apenas existindo na raiz do projeto.
@@ -40,8 +47,11 @@ def get_language(request: Request):
     if "es" in lang_header: return "es"
     return "en"
 
-@app.get("/horario/{slug}", response_class=HTMLResponse)
+@app.get("/horario/{slug}")
 async def show_location(request: Request, slug: str):
+    if error_trace:
+        return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
         
@@ -80,8 +90,11 @@ async def show_location(request: Request, slug: str):
         "lang": lang
     })
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def index(request: Request):
+    if error_trace:
+        return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
+
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
 
