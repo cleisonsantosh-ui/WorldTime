@@ -1,5 +1,6 @@
 import os
 import traceback
+import httpx
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 
@@ -9,33 +10,25 @@ error_trace = None
 
 try:
     from fastapi.templating import Jinja2Templates
-    from supabase import create_client, Client
     from dotenv import load_dotenv
 
     load_dotenv()
 
-    # Conecta ao Supabase
+    # Conecta ao Supabase usando httpx no lugar do supabase_py
     SUPABASE_URL = os.getenv("SUPABASE_URL")
     SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-    supabase = None
+    supabase_client = None
     if SUPABASE_URL and SUPABASE_KEY:
-        import re
-        # O Supabase atualizou o formato das chaves para "sb_publishable_..."
-        # Porem, o cliente Python antigo possui um código hardcoded que bloqueia isso
-        # Aqui fazemos um 'monkey-patch' rápido para pular essa validação.
-        original_match = re.match
-        def custom_match(pattern, string, flags=0):
-            if "A-Za-z0-9" in str(pattern) and string.startswith("sb_"):
-                class MockMatch: pass
-                return MockMatch()
-            return original_match(pattern, string, flags)
-            
-        re.match = custom_match
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        finally:
-            re.match = original_match
+        supabase_client = httpx.AsyncClient(
+            base_url=SUPABASE_URL.rstrip("/"),
+            headers={
+                "apikey": SUPABASE_KEY,
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "Content-Type": "application/json",
+                "Prefer": "return=representation"
+            }
+        )
 
     # Configurações de Pastas e Templates
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -67,20 +60,26 @@ async def show_location(request: Request, slug: str):
     if error_trace:
         return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
 
-    if not supabase:
+    if not supabase_client:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
         
-    # 1. Busca os dados na tabela 'locations' via Supabase
-    response = supabase.table("locations").select("*").eq("slug", slug).execute()
-    
-    if not response.data:
-        raise HTTPException(status_code=404, detail="Página não encontrada")
-    
-    location = response.data[0]
-    
-    # 2. Busca sugestões de outras cidades
-    sugg_response = supabase.rpc("get_random_locations", {"limit_num": 5}).execute()
-    suggestions = [s for s in sugg_response.data if s["slug"] != slug][:4]
+    try:
+        # 1. Busca os dados na tabela 'locations'
+        resp_loc = await supabase_client.get(f"/rest/v1/locations?slug=eq.{slug}&select=*")
+        resp_loc.raise_for_status()
+        loc_data = resp_loc.json()
+        
+        if not loc_data:
+            raise HTTPException(status_code=404, detail="Página não encontrada")
+        
+        location = loc_data[0]
+        
+        # 2. Busca sugestões via RPC
+        sugg_response = await supabase_client.post("/rest/v1/rpc/get_random_locations", json={"limit_num": 5})
+        sugg_data = sugg_response.json() if sugg_response.status_code == 200 else []
+        suggestions = [s for s in sugg_data if s.get("slug") != slug][:4]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     # 3. Monta as variáveis de SEO dinamicamente com base no Idioma do Navegador
     lang = get_language(request)
@@ -110,16 +109,22 @@ async def index(request: Request):
     if error_trace:
         return JSONResponse(status_code=500, content={"error": "Global init failed", "traceback": error_trace})
 
-    if not supabase:
+    if not supabase_client:
         raise HTTPException(status_code=500, detail="Supabase não configurado no arquivo .env")
 
     # Detecta o IP do usuário (aqui simulamos o fallback para são paulo)
     fallback_slug = "sao-paulo" 
     
-    response = supabase.table("locations").select("*").eq("slug", fallback_slug).execute()
-    location = response.data[0] if response.data else None
-    
-    sugg_response = supabase.rpc("get_random_locations", {"limit_num": 4}).execute()
+    try:
+        resp_loc = await supabase_client.get(f"/rest/v1/locations?slug=eq.{fallback_slug}&select=*")
+        resp_loc.raise_for_status()
+        loc_data = resp_loc.json()
+        location = loc_data[0] if loc_data else None
+        
+        sugg_response = await supabase_client.post("/rest/v1/rpc/get_random_locations", json={"limit_num": 4})
+        suggestions = sugg_response.json() if sugg_response.status_code == 200 else []
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
     lang = get_language(request)
     if lang == "pt":
