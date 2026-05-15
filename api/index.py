@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from supabase import create_client, Client
@@ -18,10 +18,16 @@ supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Configurações de Pastas e Templates
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates = Jinja2Templates(directory=str(BASE_DIR))
 
-# Aponta o Jinja2 para a pasta principal do seu projeto onde está o index.html
-templates = Jinja2Templates(directory=BASE_DIR)
+# Função para log de erros (ajuda no debug da Vercel)
+def log_error(e):
+    print(f"--- ERRO DETECTADO ---")
+    print(str(e))
+    import traceback
+    traceback.print_exc()
 
 # Serve os arquivos estáticos (CSS, JS, Mídia) para que funcionem corretamente
 app.mount("/css", StaticFiles(directory=os.path.join(BASE_DIR, "css")), name="css")
